@@ -485,6 +485,8 @@ public class HibernateUtil {
 
 ### Результат
 
-<img width="1071" height="364" alt="Screenshot_2" src="https://github.com/user-attachments/assets/b8bbe6ba-4dad-492b-8bc1-4387887d94c8" />
+<img width="1054" height="776" alt="Screenshot_3" src="https://github.com/user-attachments/assets/754fa1d4-9023-4431-8166-bcec2ea99082" />
+<img width="1058" height="519" alt="Screenshot_5" src="https://github.com/user-attachments/assets/660c8006-243e-4041-94a1-73480ca91293" />
+<img width="1048" height="730" alt="Screenshot_6" src="https://github.com/user-attachments/assets/8d3b6c20-c996-47a1-aefe-5a73242ec5aa" />
 
 [⬆️ К содержанию](#содержание)
