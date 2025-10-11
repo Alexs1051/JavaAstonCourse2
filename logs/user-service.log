@@ -1,0 +1,260 @@
+2025-10-09 16:18:44.270 [main] INFO  org.aston.learning.stage2.Main - User Service application starting...
+2025-10-09 16:18:44.617 [main] WARN  org.aston.learning.stage2.util.DatabaseInitializer - Database connection failed, attempting to create database...
+2025-10-09 16:18:44.853 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database 'userdb' created successfully
+2025-10-09 16:18:45.053 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-09 16:18:45.054 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-09 16:18:45.103 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.0.CR1
+2025-10-09 16:18:45.609 [main] WARN  org.hibernate.orm.connections.pooling - HHH10001002: Using built-in connection pool (not intended for production use)
+2025-10-09 16:18:45.995 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-09 16:18:46.013 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/userdb]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.0
+	Default catalog/schema: userdb/public
+	Autocommit mode: false
+	Isolation level: READ_COMMITTED
+	JDBC fetch size: none
+	Pool: DriverManagerConnectionProvider
+	Minimum pool size: 1
+	Maximum pool size: 10
+2025-10-09 16:18:46.941 [main] INFO  org.aston.learning.stage2.util.HibernateUtil - Hibernate SessionFactory created successfully
+2025-10-09 16:18:46.941 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-09 16:18:46.941 [main] INFO  org.aston.learning.stage2.Main - Database initialization completed
+2025-10-09 16:19:23.267 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User saved successfully: email@email.email
+2025-10-09 16:20:33.148 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User saved successfully: Test@Test
+2025-10-09 16:20:44.247 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User saved successfully: awd@awd
+2025-10-09 16:21:00.226 [main] INFO  org.aston.learning.stage2.Main - User Service application stopped
+2025-10-11 13:35:21.669 [main] INFO  org.aston.learning.stage2.Main - User Service application starting...
+2025-10-11 13:35:22.025 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:35:22.099 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:35:22.099 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:35:22.180 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.0.CR1
+2025-10-11 13:35:22.893 [main] WARN  org.hibernate.orm.connections.pooling - HHH10001002: Using built-in connection pool (not intended for production use)
+2025-10-11 13:35:23.121 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-11 13:35:23.149 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/userdb]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.0
+	Default catalog/schema: userdb/public
+	Autocommit mode: false
+	Isolation level: READ_COMMITTED
+	JDBC fetch size: none
+	Pool: DriverManagerConnectionProvider
+	Minimum pool size: 1
+	Maximum pool size: 10
+2025-10-11 13:35:24.507 [main] INFO  org.aston.learning.stage2.util.HibernateUtil - Hibernate SessionFactory created successfully
+2025-10-11 13:35:24.507 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:35:24.507 [main] INFO  org.aston.learning.stage2.Main - Database initialization completed
+2025-10-11 13:35:46.999 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User saved successfully: 5
+2025-10-11 13:36:23.135 [main] INFO  org.aston.learning.stage2.Main - User Service application starting...
+2025-10-11 13:36:23.517 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:36:23.684 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:36:23.684 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:36:23.738 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.0.CR1
+2025-10-11 13:36:24.294 [main] WARN  org.hibernate.orm.connections.pooling - HHH10001002: Using built-in connection pool (not intended for production use)
+2025-10-11 13:36:24.482 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-11 13:36:24.501 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/userdb]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.0
+	Default catalog/schema: userdb/public
+	Autocommit mode: false
+	Isolation level: READ_COMMITTED
+	JDBC fetch size: none
+	Pool: DriverManagerConnectionProvider
+	Minimum pool size: 1
+	Maximum pool size: 10
+2025-10-11 13:36:25.511 [main] INFO  org.aston.learning.stage2.util.HibernateUtil - Hibernate SessionFactory created successfully
+2025-10-11 13:36:25.511 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:36:25.512 [main] INFO  org.aston.learning.stage2.Main - Database initialization completed
+2025-10-11 13:36:33.260 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User saved successfully: 5
+2025-10-11 13:37:08.711 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User updated successfully: 3
+2025-10-11 13:37:45.019 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User deleted successfully: 1
+2025-10-11 13:37:48.710 [main] INFO  org.aston.learning.stage2.Main - User Service application stopped
+2025-10-11 13:38:58.495 [main] INFO  org.aston.learning.stage2.Main - User Service application starting...
+2025-10-11 13:38:58.874 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:38:58.939 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:38:58.939 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:38:58.998 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.0.CR1
+2025-10-11 13:38:59.531 [main] WARN  org.hibernate.orm.connections.pooling - HHH10001002: Using built-in connection pool (not intended for production use)
+2025-10-11 13:38:59.728 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-11 13:38:59.751 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/userdb]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.0
+	Default catalog/schema: userdb/public
+	Autocommit mode: false
+	Isolation level: READ_COMMITTED
+	JDBC fetch size: none
+	Pool: DriverManagerConnectionProvider
+	Minimum pool size: 1
+	Maximum pool size: 10
+2025-10-11 13:39:00.828 [main] INFO  org.aston.learning.stage2.util.HibernateUtil - Hibernate SessionFactory created successfully
+2025-10-11 13:39:00.830 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:39:00.831 [main] INFO  org.aston.learning.stage2.Main - Database initialization completed
+2025-10-11 13:39:08.523 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User saved successfully: 5
+2025-10-11 13:39:15.333 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User deleted successfully: 1
+2025-10-11 13:39:19.189 [main] INFO  org.aston.learning.stage2.Main - User Service application stopped
+2025-10-11 13:39:56.104 [main] INFO  org.aston.learning.stage2.Main - User Service application starting...
+2025-10-11 13:39:56.443 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:39:56.608 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:39:56.608 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:39:56.684 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.0.CR1
+2025-10-11 13:39:57.399 [main] WARN  org.hibernate.orm.connections.pooling - HHH10001002: Using built-in connection pool (not intended for production use)
+2025-10-11 13:39:57.585 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-11 13:39:57.604 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/userdb]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.0
+	Default catalog/schema: userdb/public
+	Autocommit mode: false
+	Isolation level: READ_COMMITTED
+	JDBC fetch size: none
+	Pool: DriverManagerConnectionProvider
+	Minimum pool size: 1
+	Maximum pool size: 10
+2025-10-11 13:39:58.683 [main] INFO  org.aston.learning.stage2.util.HibernateUtil - Hibernate SessionFactory created successfully
+2025-10-11 13:39:58.683 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:39:58.683 [main] INFO  org.aston.learning.stage2.Main - Database initialization completed
+2025-10-11 13:40:01.860 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User saved successfully: 5
+2025-10-11 13:40:04.514 [main] INFO  org.aston.learning.stage2.Main - User Service application stopped
+2025-10-11 13:40:58.689 [main] INFO  org.aston.learning.stage2.Main - User Service application starting...
+2025-10-11 13:40:58.927 [main] WARN  org.aston.learning.stage2.util.DatabaseInitializer - Database connection failed, attempting to create database...
+2025-10-11 13:40:58.991 [main] ERROR org.aston.learning.stage2.util.DatabaseInitializer - Failed to create database
+org.postgresql.util.PSQLException: �����: ������������ "postgres1" �� ������ �������� ����������� (�� ������)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.doAuthentication(ConnectionFactoryImpl.java:778)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:234)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:279)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:683)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at org.aston.learning.stage2.util.DatabaseInitializer.createDatabase(DatabaseInitializer.java:46)
+	at org.aston.learning.stage2.util.DatabaseInitializer.initialize(DatabaseInitializer.java:31)
+	at org.aston.learning.stage2.Main.main(Main.java:26)
+2025-10-11 13:40:58.994 [main] ERROR org.aston.learning.stage2.Main - Application error
+java.lang.RuntimeException: Database initialization failed
+	at org.aston.learning.stage2.util.DatabaseInitializer.createDatabase(DatabaseInitializer.java:56)
+	at org.aston.learning.stage2.util.DatabaseInitializer.initialize(DatabaseInitializer.java:31)
+	at org.aston.learning.stage2.Main.main(Main.java:26)
+Caused by: org.postgresql.util.PSQLException: �����: ������������ "postgres1" �� ������ �������� ����������� (�� ������)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.doAuthentication(ConnectionFactoryImpl.java:778)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:234)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:279)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:683)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at org.aston.learning.stage2.util.DatabaseInitializer.createDatabase(DatabaseInitializer.java:46)
+	... 2 more
+2025-10-11 13:40:59.064 [main] WARN  org.aston.learning.stage2.util.DatabaseInitializer - Database connection failed, attempting to create database...
+2025-10-11 13:40:59.120 [main] ERROR org.aston.learning.stage2.util.DatabaseInitializer - Failed to create database
+org.postgresql.util.PSQLException: �����: ������������ "postgres1" �� ������ �������� ����������� (�� ������)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.doAuthentication(ConnectionFactoryImpl.java:778)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:234)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:279)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:683)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at org.aston.learning.stage2.util.DatabaseInitializer.createDatabase(DatabaseInitializer.java:46)
+	at org.aston.learning.stage2.util.DatabaseInitializer.initialize(DatabaseInitializer.java:31)
+	at org.aston.learning.stage2.util.HibernateUtil.<clinit>(HibernateUtil.java:19)
+	at org.aston.learning.stage2.Main.main(Main.java:69)
+2025-10-11 13:40:59.121 [main] ERROR org.aston.learning.stage2.util.HibernateUtil - Initial SessionFactory creation failed.
+java.lang.RuntimeException: Database initialization failed
+	at org.aston.learning.stage2.util.DatabaseInitializer.createDatabase(DatabaseInitializer.java:56)
+	at org.aston.learning.stage2.util.DatabaseInitializer.initialize(DatabaseInitializer.java:31)
+	at org.aston.learning.stage2.util.HibernateUtil.<clinit>(HibernateUtil.java:19)
+	at org.aston.learning.stage2.Main.main(Main.java:69)
+Caused by: org.postgresql.util.PSQLException: �����: ������������ "postgres1" �� ������ �������� ����������� (�� ������)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.doAuthentication(ConnectionFactoryImpl.java:778)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:234)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:279)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:683)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at org.aston.learning.stage2.util.DatabaseInitializer.createDatabase(DatabaseInitializer.java:46)
+	... 3 more
+2025-10-11 13:41:42.946 [main] INFO  org.aston.learning.stage2.Main - User Service application starting...
+2025-10-11 13:41:43.219 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:41:43.284 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 13:41:43.284 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:41:43.346 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.0.CR1
+2025-10-11 13:41:43.928 [main] WARN  org.hibernate.orm.connections.pooling - HHH10001002: Using built-in connection pool (not intended for production use)
+2025-10-11 13:41:44.228 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-11 13:41:44.248 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/userdb]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.0
+	Default catalog/schema: userdb/public
+	Autocommit mode: false
+	Isolation level: READ_COMMITTED
+	JDBC fetch size: none
+	Pool: DriverManagerConnectionProvider
+	Minimum pool size: 1
+	Maximum pool size: 10
+2025-10-11 13:41:45.238 [main] INFO  org.aston.learning.stage2.util.HibernateUtil - Hibernate SessionFactory created successfully
+2025-10-11 13:41:45.238 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 13:41:45.238 [main] INFO  org.aston.learning.stage2.Main - Database initialization completed
+2025-10-11 13:41:49.552 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User saved successfully: 5
+2025-10-11 13:41:57.200 [main] INFO  org.aston.learning.stage2.dao.UserDaoImpl - User deleted successfully: 1
+2025-10-11 13:42:03.381 [main] INFO  org.aston.learning.stage2.Main - User Service application stopped
+2025-10-11 14:27:30.429 [main] INFO  org.aston.learning.stage2.Main - User Service application starting...
+2025-10-11 14:27:30.837 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 14:27:30.906 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 14:27:30.906 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 14:27:30.975 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.0.CR1
+2025-10-11 14:27:31.612 [main] WARN  org.hibernate.orm.connections.pooling - HHH10001002: Using built-in connection pool (not intended for production use)
+2025-10-11 14:27:31.901 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-11 14:27:31.922 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/userdb]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.0
+	Default catalog/schema: userdb/public
+	Autocommit mode: false
+	Isolation level: READ_COMMITTED
+	JDBC fetch size: none
+	Pool: DriverManagerConnectionProvider
+	Minimum pool size: 1
+	Maximum pool size: 10
+2025-10-11 14:27:33.115 [main] INFO  org.aston.learning.stage2.util.HibernateUtil - Hibernate SessionFactory created successfully
+2025-10-11 14:27:33.115 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 14:27:33.115 [main] INFO  org.aston.learning.stage2.Main - Database initialization completed
+2025-10-11 14:28:08.257 [main] INFO  org.aston.learning.stage2.Main - User Service application starting...
+2025-10-11 14:28:08.651 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 14:28:08.707 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Database connection test successful
+2025-10-11 14:28:08.707 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 14:28:08.760 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.0.CR1
+2025-10-11 14:28:09.300 [main] WARN  org.hibernate.orm.connections.pooling - HHH10001002: Using built-in connection pool (not intended for production use)
+2025-10-11 14:28:09.519 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/userdb]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.0
+	Default catalog/schema: userdb/public
+	Autocommit mode: false
+	Isolation level: READ_COMMITTED
+	JDBC fetch size: none
+	Pool: DriverManagerConnectionProvider
+	Minimum pool size: 1
+	Maximum pool size: 10
+2025-10-11 14:28:10.550 [main] INFO  org.aston.learning.stage2.util.HibernateUtil - Hibernate SessionFactory created successfully
+2025-10-11 14:28:10.550 [main] INFO  org.aston.learning.stage2.util.DatabaseInitializer - Hibernate initialized successfully
+2025-10-11 14:28:10.550 [main] INFO  org.aston.learning.stage2.Main - Database initialization completed
