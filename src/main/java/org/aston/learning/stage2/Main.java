@@ -1,9 +1,10 @@
 package org.aston.learning.stage2;
 
-import org.aston.learning.stage2.dao.UserDao;
 import org.aston.learning.stage2.dao.UserDaoImpl;
 import org.aston.learning.stage2.entity.User;
 import org.aston.learning.stage2.exception.UserServiceException;
+import org.aston.learning.stage2.service.UserService;
+import org.aston.learning.stage2.service.UserServiceImpl;
 import org.aston.learning.stage2.util.DatabaseInitializer;
 import org.aston.learning.stage2.util.HibernateUtil;
 import org.apache.logging.log4j.LogManager;
@@ -15,14 +16,14 @@ import java.util.Scanner;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
-    private static final UserDao userDao = new UserDaoImpl();
+    private static final UserService userService = new UserServiceImpl(new UserDaoImpl());
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         logger.info("User Service application starting...");
 
         try {
-            // Инициализируем базу данных и таблицы
+            // Initialize database and create tables
             DatabaseInitializer.initialize();
             logger.info("Database initialization completed");
 
@@ -53,7 +54,7 @@ public class Main {
                         running = false;
                         break;
                     default:
-                        System.out.println("Invalid choice. Please try again.");
+                        logger.warn("Invalid menu choice entered: {}", choice);
                 }
 
                 if (running) {
@@ -62,9 +63,11 @@ public class Main {
                 }
 
             }
+
+            logger.info("Application shutdown initiated by user");
+
         } catch (Exception e) {
             logger.error("Application error", e);
-            System.out.println("An error occurred: " + e.getMessage());
         } finally {
             HibernateUtil.shutdown();
             scanner.close();
@@ -83,115 +86,213 @@ public class Main {
     }
 
     private static void createUser() {
+        logger.debug("Starting create user operation");
+
         try {
             System.out.print("Enter name: ");
             String name = scanner.nextLine();
+            if (name.isEmpty()) {
+                logger.warn("Empty name provided during user creation");
+                return;
+            }
 
             System.out.print("Enter email: ");
             String email = scanner.nextLine();
+            if (email.isEmpty()) {
+                logger.warn("Empty email provided during user creation");
+                return;
+            }
 
             System.out.print("Enter age: ");
-            int age = Integer.parseInt(scanner.nextLine());
+            String ageInput = scanner.nextLine().trim();
+            if (ageInput.isEmpty()) {
+                logger.warn("Empty age provided during user creation");
+                return;
+            }
 
-            User user = new User(name, email, age);
-            User savedUser = userDao.save(user);
+            int age;
+            try {
+                age = Integer.parseInt(ageInput);
+                if (age < 0 || age > 150) {
+                    logger.warn("Invalid age range provided: {}", age);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                logger.warn("Invalid age format provided: {}", ageInput, e);
+                return;
+            }
 
-            System.out.println("User created successfully: " + savedUser);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid age format. Please enter a number.");
+            User savedUser = userService.createUser(name, email, age);
+
+            logger.info("User created successfully with ID: {}", savedUser.getId());
         } catch (UserServiceException e) {
-            System.out.println("Error creating user: " + e.getMessage());
+            logger.error("Error creating user", e);
         }
     }
 
     private static void getUserById() {
+        logger.debug("Starting get user by ID operation");
+
         try {
             System.out.print("Enter user ID: ");
-            Long id = Long.parseLong(scanner.nextLine());
+            String idInput = scanner.nextLine().trim();
 
-            Optional<User> user = userDao.findById(id);
-            if (user.isPresent()) {
-                System.out.println("User found: " + user.get());
-            } else {
-                System.out.println("User not found with ID: " + id);
+            if (idInput.isEmpty()) {
+                logger.warn("Empty ID provided during user retrieval");
+                return;
             }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid ID format. Please enter a number.");
+
+            Long id;
+            try {
+                id = Long.parseLong(idInput);
+            } catch (NumberFormatException e) {
+                logger.warn("Invalid ID format provided: {}", idInput, e);
+                return;
+            }
+
+            Optional<User> user = userService.getUserById(id);
+            if (user.isPresent()) {
+                logger.debug("User found with ID: {} - {}", id, user.get());
+            } else {
+                logger.warn("User not found with ID: {}", id);
+            }
+
         } catch (UserServiceException e) {
-            System.out.println("Error finding user: " + e.getMessage());
+            logger.error("Error retrieving user by ID", e);
         }
     }
 
     private static void getAllUsers() {
+        logger.debug("Starting get all users operation");
+
         try {
-            List<User> users = userDao.findAll();
+            List<User> users = userService.getAllUsers();
+
             if (users.isEmpty()) {
-                System.out.println("No users found.");
+                logger.info("No users found in database");
             } else {
-                System.out.println("Users:");
-                users.forEach(System.out::println);
+                logger.debug("Found {} users in database", users.size());
+
+                System.out.println("----------------------------------------");
+                for (int i = 0; i < users.size(); i++) {
+                    System.out.println((i + 1) + ". " + users.get(i));
+                }
             }
+
         } catch (UserServiceException e) {
-            System.out.println("Error retrieving users: " + e.getMessage());
+            logger.error("Error retrieving all users", e);
         }
     }
 
     private static void updateUser() {
+        logger.debug("Starting update user operation");
+
         try {
             System.out.print("Enter user ID to update: ");
-            Long id = Long.parseLong(scanner.nextLine());
+            String idInput = scanner.nextLine().trim();
 
-            Optional<User> existingUser = userDao.findById(id);
-            if (existingUser.isEmpty()) {
-                System.out.println("User not found with ID: " + id);
+            if (idInput.isEmpty()) {
+                logger.warn("Empty ID provided during user update");
                 return;
             }
 
+            Long id;
+            try {
+                id = Long.parseLong(idInput);
+            } catch (NumberFormatException e) {
+                logger.warn("Invalid ID format provided during update: {}", idInput, e);
+                return;
+            }
+
+            Optional<User> existingUser = userService.getUserById(id);
+            if (existingUser.isEmpty()) {
+                logger.warn("User not found for update with ID: {}", id);
+                return;
+            }
             User user = existingUser.get();
 
-            System.out.print("Enter new name (current: " + user.getName() + "): ");
-            String name = scanner.nextLine();
-            if (!name.isEmpty()) {
-                user.setName(name);
+            logger.debug("Found user for update: {}", user.getEmail());
+
+            String newName = null;
+            String newEmail = null;
+            Integer newAge = null;
+
+            System.out.print("Name [" + user.getName() + "]: ");
+            String nameInput = scanner.nextLine().trim();
+            if (!nameInput.isEmpty()) {
+                newName = nameInput;
+                logger.debug("Updated name for user ID: {}", id);
             }
 
-            System.out.print("Enter new email (current: " + user.getEmail() + "): ");
-            String email = scanner.nextLine();
-            if (!email.isEmpty()) {
-                user.setEmail(email);
+            System.out.print("Email [" + user.getEmail() + "]: ");
+            String emailInput = scanner.nextLine().trim();
+            if (!emailInput.isEmpty()) {
+                newEmail = emailInput;
+                logger.debug("Updated email for user ID: {}", id);
             }
 
-            System.out.print("Enter new age (current: " + user.getAge() + "): ");
-            String ageInput = scanner.nextLine();
+            System.out.print("Age [" + user.getAge() + "]: ");
+            String ageInput = scanner.nextLine().trim();
             if (!ageInput.isEmpty()) {
-                user.setAge(Integer.parseInt(ageInput));
+                try {
+                    newAge = Integer.parseInt(ageInput);
+                    if (newAge < 0 || newAge > 150) {
+                        logger.warn("Invalid age range during update: {}", newAge);
+                        newAge = null;
+                    } else {
+                        logger.debug("Updated age for user ID: {}", id);
+                    }
+                } catch (NumberFormatException e) {
+                    logger.warn("Invalid age format during update: {}", ageInput, e);
+                }
             }
 
-            User updatedUser = userDao.update(user);
-            System.out.println("User updated successfully: " + updatedUser);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid number format.");
+            User updatedUser = userService.updateUser(id, newName, newEmail, newAge);
+            logger.info("User updated successfully with ID: {}", updatedUser.getId());
+
         } catch (UserServiceException e) {
-            System.out.println("Error updating user: " + e.getMessage());
+            logger.error("Error updating user", e);
         }
     }
 
     private static void deleteUser() {
+        logger.debug("Starting delete user operation");
+
         try {
             System.out.print("Enter user ID to delete: ");
-            Long id = Long.parseLong(scanner.nextLine());
+            String idInput = scanner.nextLine().trim();
 
-            Optional<User> user = userDao.findById(id);
-            if (user.isPresent()) {
-                userDao.delete(id);
-                System.out.println("User deleted successfully.");
-            } else {
-                System.out.println("User not found with ID: " + id);
+            if (idInput.isEmpty()) {
+                logger.warn("Empty ID provided during user deletion");
+                return;
             }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid ID format. Please enter a number.");
+
+            Long id;
+            try {
+                id = Long.parseLong(idInput);
+            } catch (NumberFormatException e) {
+                logger.warn("Invalid ID format provided during deletion: {}", idInput, e);
+                return;
+            }
+
+            if (!userService.userExists(id)) {
+                logger.warn("Attempt to delete non-existent user with ID: {}", id);
+                return;
+            }
+
+            // Accept deletion
+            System.out.print("! Are you sure you want to delete user with ID " + id + "? (yes/no): ");
+            String confirmation = scanner.nextLine().trim().toLowerCase();
+
+            if ("yes".equals(confirmation) || "y".equals(confirmation)) {
+                userService.deleteUser(id);
+                logger.info("User deleted successfully with ID: {}", id);
+            } else {
+                logger.info("User deletion cancelled for ID: {}", id);
+            }
+
         } catch (UserServiceException e) {
-            System.out.println("Error deleting user: " + e.getMessage());
+            logger.error("Error deleting user", e);
         }
     }
 }

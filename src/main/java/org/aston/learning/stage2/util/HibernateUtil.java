@@ -15,10 +15,10 @@ public class HibernateUtil {
 
     static {
         try {
-            // Инициализируем базу данных перед созданием SessionFactory
+            // Initialize database before creating SessionFactory
             DatabaseInitializer.initialize();
 
-            // Создаем SessionFactory
+            // Create SessionFactory
             StandardServiceRegistry standardRegistry = new StandardServiceRegistryBuilder()
                     .configure("hibernate.cfg.xml")
                     .build();
