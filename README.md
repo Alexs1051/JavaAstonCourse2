@@ -58,7 +58,7 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    // Конструкторы
+    // Constructs
     public User() {
         this.createdAt = LocalDateTime.now();
     }
@@ -70,36 +70,40 @@ public class User {
         this.age = age;
     }
 
-    // Геттеры и сеттеры
+    // Getters
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public Integer getAge() {
         return age;
     }
 
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public void setAge(Integer age) {
+        if (age != null && (age < 0 || age > 150)) {
+            throw new IllegalArgumentException("Age must be between 0 and 150");
+        }
         this.age = age;
     }
 
@@ -134,116 +138,270 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) throws UserServiceException {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
+        return executeInTransaction(session -> {
             session.persist(user);
-            transaction.commit();
-
-            logger.info("User saved successfully with ID: {}", user.getId());
+            logger.info("User saved successfully: {}", user.getEmail());
             return user;
-
-        } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            logger.error("Error saving user with email: {}", user.getEmail(), e);
-            throw new UserServiceException("Failed to save user: " + e.getMessage(), e);
-        }
+        });
     }
 
     @Override
     public Optional<User> findById(Long id) throws UserServiceException {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            User user = session.get(User.class, id);
-
-            if (user != null) {
-                logger.debug("User found with ID: {}", id);
-            } else {
-                logger.debug("User not found with ID: {}", id);
-            }
-
+        return executeInTransaction(session -> {
+            User user = session.find(User.class, id);
             return Optional.ofNullable(user);
-
-        } catch (Exception e) {
-            logger.error("Error finding user by ID: {}", id, e);
-            throw new UserServiceException("Failed to find user by ID: " + e.getMessage(), e);
-        }
+        });
     }
 
     @Override
     public List<User> findAll() throws UserServiceException {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Query<User> query = session.createQuery("FROM User", User.class);
-            List<User> users = query.list();
-
-            logger.debug("Found {} users", users.size());
-            return users;
-
-        } catch (Exception e) {
-            logger.error("Error finding all users", e);
-            throw new UserServiceException("Failed to find all users: " + e.getMessage(), e);
-        }
+        return executeInTransaction(session -> {
+            Query<User> query = session.createQuery("FROM User", User.class)
+                    .setMaxResults(100)
+                    .setFirstResult(0);
+            return query.list();
+        });
     }
 
     @Override
     public User update(User user) throws UserServiceException {
+        return executeInTransaction(session -> {
+            User updatedUser = session.merge(user);
+            logger.info("User updated successfully: {}", user.getEmail());
+            return updatedUser;
+        });
+    }
+
+    @Override
+    public void delete(Long id) throws UserServiceException {
+        executeInTransactionVoid(session -> {
+            User user = session.find(User.class, id);
+            if (user != null) {
+                session.remove(user);
+                logger.info("User deleted successfully: {}", id);
+            }
+        });
+    }
+
+    private <T> T executeInTransaction(Function<Session, T> function) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-
-            User updatedUser = session.merge(user);
+            T result = function.apply(session);
             transaction.commit();
-
-            logger.info("User updated successfully with ID: {}", updatedUser.getId());
-            return updatedUser;
-
+            return result;
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
+            if (transaction != null) {
                 transaction.rollback();
             }
-            logger.error("Error updating user with ID: {}", user.getId(), e);
+            logger.error("Transaction failed", e);
+            throw new UserServiceException("Database operation failed", e);
+        }
+    }
+
+    private void executeInTransactionVoid(Consumer<Session> consumer) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            consumer.accept(session);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            logger.error("Transaction failed", e);
+            throw new UserServiceException("Database operation failed", e);
+        }
+    }
+}
+```
+#### Реализация сервиса:
+```java
+public class UserServiceImpl implements UserService {
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
+    private final UserDao userDao;
+
+    // Email regexp
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+    );
+
+    public UserServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Override
+    public User createUser(String name, String email, Integer age) throws UserServiceException {
+        logger.debug("Creating new user: name={}, email={}, age={}", name, email, age);
+
+        // Data validation
+        validateUserData(name, email, age);
+
+        try {
+            // Check if user with this email is already exist
+            User user = new User(name, email, age);
+            User savedUser = userDao.save(user);
+
+            logger.info("User created successfully with ID: {}", savedUser.getId());
+            return savedUser;
+        } catch (UserServiceException e) {
+            logger.error("Failed to create user with email: {}", email, e);
+            throw new UserServiceException("Failed to create user: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Optional<User> getUserById(Long id) throws UserServiceException {
+        logger.debug("Retrieving user by ID: {}", id);
+
+        if (id == null || id <= 0) {
+            logger.warn("Invalid user ID provided: {}", id);
+            throw new UserServiceException("Invalid user ID: " + id);
+        }
+
+        try {
+            Optional<User> user = userDao.findById(id);
+            if (user.isPresent()) {
+                logger.debug("User found with ID: {}", id);
+            } else {
+                logger.debug("User not found with ID: {}", id);
+            }
+            return user;
+        } catch (UserServiceException e) {
+            logger.error("Failed to retrieve user with ID: {}", id, e);
+            throw new UserServiceException("Failed to retrieve user: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<User> getAllUsers() throws UserServiceException {
+        logger.debug("Retrieving all users");
+
+        try {
+            List<User> users = userDao.findAll();
+            logger.debug("Retrieved {} users", users.size());
+            return users;
+        } catch (UserServiceException e) {
+            logger.error("Failed to retrieve all users", e);
+            throw new UserServiceException("Failed to retrieve users: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public User updateUser(Long id, String name, String email, Integer age) throws UserServiceException {
+        logger.debug("Updating user with ID: {}, name={}, email={}, age={}", id, name, email, age);
+
+        if (id == null || id <= 0) {
+            logger.warn("Invalid user ID provided for update: {}", id);
+            throw new UserServiceException("Invalid user ID: " + id);
+        }
+
+        // Data validation (if present)
+        if (name != null && name.trim().isEmpty()) {
+            throw new UserServiceException("Name cannot be empty");
+        }
+        if (email != null && !isValidEmail(email)) {
+            throw new UserServiceException("Invalid email format: " + email);
+        }
+        if (age != null && !isValidAge(age)) {
+            throw new UserServiceException("Invalid age: " + age);
+        }
+
+        try {
+            // Get existing user
+            Optional<User> existingUser = getUserById(id);
+            if (existingUser.isEmpty()) {
+                logger.warn("User not found for update with ID: {}", id);
+                throw new UserServiceException("User not found with ID: " + id);
+            }
+
+            User user = existingUser.get();
+
+            // Update only present fields
+            if (name != null) {
+                user.setName(name);
+            }
+            if (email != null) {
+                user.setEmail(email);
+            }
+            if (age != null) {
+                user.setAge(age);
+            }
+
+            User updatedUser = userDao.update(user);
+            logger.info("User updated successfully with ID: {}", updatedUser.getId());
+            return updatedUser;
+        } catch (UserServiceException e) {
+            logger.error("Failed to update user with ID: {}", id, e);
             throw new UserServiceException("Failed to update user: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void delete(Long id) throws UserServiceException {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
+    public void deleteUser(Long id) throws UserServiceException {
+        logger.debug("Deleting user with ID: {}", id);
 
-            User user = session.get(User.class, id);
-            if (user != null) {
-                session.remove(user);
-                logger.info("User deleted successfully with ID: {}", id);
-            } else {
-                logger.warn("Attempted to delete non-existent user with ID: {}", id);
+        if (id == null || id <= 0) {
+            logger.warn("Invalid user ID provided for deletion: {}", id);
+            throw new UserServiceException("Invalid user ID: " + id);
+        }
+
+        try {
+            if (!userExists(id)) {
+                logger.warn("Attempt to delete non-existent user with ID: {}", id);
                 throw new UserServiceException("User not found with ID: " + id);
             }
 
-            transaction.commit();
-
+            userDao.delete(id);
+            logger.info("User deleted successfully with ID: {}", id);
         } catch (UserServiceException e) {
-            throw e;
-        } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            logger.error("Error deleting user with ID: {}", id, e);
+            logger.error("Failed to delete user with ID: {}", id, e);
             throw new UserServiceException("Failed to delete user: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean existsById(Long id) throws UserServiceException {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            User user = session.get(User.class, id);
-            return user != null;
-        } catch (Exception e) {
-            logger.error("Error checking existence of user with ID: {}", id, e);
+    public boolean userExists(Long id) throws UserServiceException {
+        if (id == null || id <= 0) {
+            return false;
+        }
+
+        try {
+            return userDao.findById(id).isPresent();
+        } catch (UserServiceException e) {
+            logger.error("Failed to check user existence with ID: {}", id, e);
             throw new UserServiceException("Failed to check user existence: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public boolean isValidEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
+        return EMAIL_PATTERN.matcher(email).matches();
+    }
+
+    @Override
+    public boolean isValidAge(Integer age) {
+        return age != null && age >= 0 && age <= 150;
+    }
+
+    private void validateUserData(String name, String email, Integer age) throws UserServiceException {
+        if (name == null || name.trim().isEmpty()) {
+            throw new UserServiceException("Name cannot be empty");
+        }
+
+        if (email == null || email.trim().isEmpty()) {
+            throw new UserServiceException("Email cannot be empty");
+        }
+
+        if (!isValidEmail(email)) {
+            throw new UserServiceException("Invalid email format: " + email);
+        }
+
+        if (age == null || !isValidAge(age)) {
+            throw new UserServiceException("Invalid age: " + age);
         }
     }
 }
@@ -252,67 +410,55 @@ public class UserDaoImpl implements UserDao {
 ```java
 public class DatabaseInitializer {
     private static final Logger logger = LogManager.getLogger(DatabaseInitializer.class);
-
     private static final String DEFAULT_URL = "jdbc:postgresql://localhost:5432/";
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/userdb";
     private static final String DB_NAME = "userdb";
     private static final String USERNAME = "postgres";
-    private static final String PASSWORD = "password";
+    private static final String PASSWORD = "root";
 
     public static void initialize() {
-        logger.info("Starting database initialization...");
-
         try {
-            // Пытаемся подключиться к существующей базе данных
-            if (!testDatabaseExists()) {
-                createDatabase();
-            }
-
-            // Проверяем подключение к целевой базе данных
+            // Attempt to connect to database
             testConnection();
-            logger.info("Database initialization completed successfully");
-
+            logger.info("Database connection test successful");
         } catch (Exception e) {
-            logger.error("Database initialization failed", e);
-            throw new RuntimeException("Failed to initialize database", e);
+            logger.warn("Database connection failed, attempting to create database...");
+            createDatabase();
         }
+
+        // Initialize Hibernate and create tables
+        initializeHibernate();
     }
 
-    private static boolean testDatabaseExists() {
-        try (Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD)) {
-            logger.info("Database '{}' already exists", DB_NAME);
-            return true;
-        } catch (Exception e) {
-            logger.info("Database '{}' does not exist, will create it", DB_NAME);
-            return false;
+    private static void testConnection() throws Exception {
+        String url = DEFAULT_URL + DB_NAME;
+        try (Connection connection = DriverManager.getConnection(url, USERNAME, PASSWORD)) {
+            // Check connection
         }
     }
 
     private static void createDatabase() {
-        String createDbSQL = "CREATE DATABASE " + DB_NAME;
+        try (Connection connection = DriverManager.getConnection(DEFAULT_URL, USERNAME, PASSWORD);
+             Statement statement = connection.createStatement()) {
 
-        try (Connection conn = DriverManager.getConnection(DEFAULT_URL, USERNAME, PASSWORD);
-             Statement stmt = conn.createStatement()) {
-
-            logger.info("Creating database: {}", DB_NAME);
-            stmt.executeUpdate(createDbSQL);
+            // Create database
+            String createDbSQL = "CREATE DATABASE " + DB_NAME;
+            statement.executeUpdate(createDbSQL);
             logger.info("Database '{}' created successfully", DB_NAME);
 
-            // Небольшая задержка для обеспечения создания БД
-            Thread.sleep(1000);
-
         } catch (Exception e) {
-            logger.error("Failed to create database '{}'", DB_NAME, e);
-            throw new RuntimeException("Database creation failed", e);
+            logger.error("Failed to create database", e);
+            throw new RuntimeException("Database initialization failed", e);
         }
     }
 
-    private static void testConnection() {
-        try (Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD)) {
-            logger.info("Successfully connected to database '{}'", DB_NAME);
+    private static void initializeHibernate() {
+        try {
+            // Get SessionFactory - Hibernate will automatically create tables
+            HibernateUtil.getSessionFactory();
+            logger.info("Hibernate initialized successfully");
         } catch (Exception e) {
-            logger.error("Failed to connect to database '{}'", DB_NAME, e);
-            throw new RuntimeException("Database connection failed", e);
+            logger.error("Hibernate initialization failed", e);
+            throw new RuntimeException("Hibernate initialization failed", e);
         }
     }
 }
@@ -325,40 +471,34 @@ public class HibernateUtil {
 
     static {
         try {
-            // Инициализация базы данных
+            // Initialize database before creating SessionFactory
             DatabaseInitializer.initialize();
 
-            // Создание ServiceRegistry
+            // Create SessionFactory
             StandardServiceRegistry standardRegistry = new StandardServiceRegistryBuilder()
                     .configure("hibernate.cfg.xml")
                     .build();
 
-            // Создание Metadata
             Metadata metadata = new MetadataSources(standardRegistry)
-                    .addAnnotatedClass(com.example.entity.User.class)
+                    .addAnnotatedClass(User.class)
                     .getMetadataBuilder()
                     .build();
 
-            // Создание SessionFactory
             sessionFactory = metadata.getSessionFactoryBuilder().build();
             logger.info("Hibernate SessionFactory created successfully");
 
         } catch (Throwable ex) {
-            logger.error("Initial SessionFactory creation failed", ex);
+            logger.error("Initial SessionFactory creation failed.", ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
 
     public static SessionFactory getSessionFactory() {
-        if (sessionFactory == null || sessionFactory.isClosed()) {
-            throw new IllegalStateException("SessionFactory is not available");
-        }
         return sessionFactory;
     }
 
     public static void shutdown() {
-        logger.info("Shutting down Hibernate SessionFactory");
-        if (sessionFactory != null && !sessionFactory.isClosed()) {
+        if (sessionFactory != null) {
             sessionFactory.close();
         }
     }
