@@ -1,6 +1,7 @@
 package org.aston.learning.stage2.service;
 
 import org.aston.learning.stage2.dao.UserDao;
+import org.aston.learning.stage2.dao.UserDaoImpl;
 import org.aston.learning.stage2.entity.User;
 import org.aston.learning.stage2.exception.UserServiceException;
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +19,11 @@ public class UserServiceImpl implements UserService {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
     );
+
+    // Constructs
+    public UserServiceImpl() {
+        this.userDao = new UserDaoImpl();
+    }
 
     public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;

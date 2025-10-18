@@ -4,6 +4,7 @@ import org.aston.learning.stage2.entity.User;
 import org.aston.learning.stage2.exception.UserServiceException;
 import org.aston.learning.stage2.util.HibernateUtil;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +17,16 @@ import java.util.function.Function;
 
 public class UserDaoImpl implements UserDao {
     private static final Logger logger = LogManager.getLogger(UserDaoImpl.class);
+    private final SessionFactory sessionFactory;
+
+    // Constructs
+    public UserDaoImpl() {
+        this.sessionFactory = HibernateUtil.getSessionFactory();
+    }
+
+    public UserDaoImpl(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     @Override
     public User save(User user) throws UserServiceException {
@@ -28,20 +39,24 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<User> findById(Long id) throws UserServiceException {
-        return executeInTransaction(session -> {
+        try (Session session = sessionFactory.openSession()) {
             User user = session.find(User.class, id);
             return Optional.ofNullable(user);
-        });
+        } catch (Exception e) {
+            logger.error("Error finding user by id: {}", id, e);
+            throw new UserServiceException("Failed to find user by id: " + e.getMessage(), e);
+        }
     }
 
     @Override
     public List<User> findAll() throws UserServiceException {
-        return executeInTransaction(session -> {
-            Query<User> query = session.createQuery("FROM User", User.class)
-                    .setMaxResults(100)
-                    .setFirstResult(0);
+        try (Session session = sessionFactory.openSession()) {
+            Query<User> query = session.createQuery("FROM User", User.class);
             return query.list();
-        });
+        } catch (Exception e) {
+            logger.error("Error finding all users", e);
+            throw new UserServiceException("Failed to find all users: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -60,38 +75,40 @@ public class UserDaoImpl implements UserDao {
             if (user != null) {
                 session.remove(user);
                 logger.info("User deleted successfully: {}", id);
+            } else {
+                throw new UserServiceException("User not found with ID: " + id);
             }
         });
     }
 
     private <T> T executeInTransaction(Function<Session, T> function) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
             transaction = session.beginTransaction();
+
             T result = function.apply(session);
+
             transaction.commit();
             return result;
+
         } catch (Exception e) {
-            if (transaction != null) {
+            if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
-            logger.error("Transaction failed", e);
-            throw new UserServiceException("Database operation failed", e);
+            throw new UserServiceException("Database operation failed: " + e.getMessage(), e);
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
     private void executeInTransactionVoid(Consumer<Session> consumer) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
+        executeInTransaction(session -> {
             consumer.accept(session);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            logger.error("Transaction failed", e);
-            throw new UserServiceException("Database operation failed", e);
-        }
+            return null;
+        });
     }
 }
