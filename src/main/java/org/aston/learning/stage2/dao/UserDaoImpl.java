@@ -37,9 +37,17 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> findAll() throws UserServiceException {
         return executeInTransaction(session -> {
+            Query<User> query = session.createQuery("FROM User", User.class);
+            return query.list();
+        });
+    }
+
+    @Override
+    public List<User> findAll(int page, int size) throws UserServiceException {
+        return executeInTransaction(session -> {
             Query<User> query = session.createQuery("FROM User", User.class)
-                    .setMaxResults(100)
-                    .setFirstResult(0);
+                    .setMaxResults(size)
+                    .setFirstResult(page * size);
             return query.list();
         });
     }

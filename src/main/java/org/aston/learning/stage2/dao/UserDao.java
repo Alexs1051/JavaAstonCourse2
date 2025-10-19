@@ -10,6 +10,7 @@ public interface UserDao {
     User save(User user) throws UserServiceException;
     Optional<User> findById(Long id) throws UserServiceException;
     List<User> findAll() throws UserServiceException;
+    List<User> findAll(int page, int size) throws UserServiceException;
     User update(User user) throws UserServiceException;
     void delete(Long id) throws UserServiceException;
 }
