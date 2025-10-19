@@ -16,53 +16,28 @@ import java.util.Scanner;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
-    private static final UserService userService = new UserServiceImpl(new UserDaoImpl());
-    private static final Scanner scanner = new Scanner(System.in);
+    private static UserService userService;
+    private static Scanner scanner;
 
+    // Добавляем метод для инициализации сервиса (для тестов)
+    static void initialize(UserService service, Scanner sc) {
+        userService = service;
+        scanner = sc;
+    }
+
+    // Существующий main метод
     public static void main(String[] args) {
         logger.info("User Service application starting...");
 
         try {
+            // Инициализация с реальными зависимостями
+            initialize(new UserServiceImpl(new UserDaoImpl()), new Scanner(System.in));
+
             // Initialize database and create tables
             DatabaseInitializer.initialize();
             logger.info("Database initialization completed");
 
-            boolean running = true;
-
-            while (running) {
-                displayMenu();
-                System.out.print("\nEnter your choice: ");
-                String choice = scanner.nextLine();
-
-                switch (choice) {
-                    case "1":
-                        createUser();
-                        break;
-                    case "2":
-                        getUserById();
-                        break;
-                    case "3":
-                        getAllUsers();
-                        break;
-                    case "4":
-                        updateUser();
-                        break;
-                    case "5":
-                        deleteUser();
-                        break;
-                    case "6":
-                        running = false;
-                        break;
-                    default:
-                        logger.warn("Invalid menu choice entered: {}", choice);
-                }
-
-                if (running) {
-                    System.out.println("\nPress enter to continue...");
-                    scanner.nextLine();
-                }
-
-            }
+            runApplication();
 
             logger.info("Application shutdown initiated by user");
 
@@ -70,12 +45,54 @@ public class Main {
             logger.error("Application error", e);
         } finally {
             HibernateUtil.shutdown();
-            scanner.close();
+            if (scanner != null) {
+                scanner.close();
+            }
             logger.info("User Service application stopped");
         }
     }
 
-    private static void displayMenu() {
+    // Выносим основную логику в отдельный метод для тестирования
+    static void runApplication() {
+        boolean running = true;
+
+        while (running) {
+            displayMenu();
+            System.out.print("\nEnter your choice: ");
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    createUser();
+                    break;
+                case "2":
+                    getUserById();
+                    break;
+                case "3":
+                    getAllUsers();
+                    break;
+                case "4":
+                    updateUser();
+                    break;
+                case "5":
+                    deleteUser();
+                    break;
+                case "6":
+                    running = false;
+                    break;
+                default:
+                    logger.warn("Invalid menu choice entered: {}", choice);
+            }
+
+            if (running) {
+                System.out.println("\nPress enter to continue...");
+                scanner.nextLine();
+            }
+        }
+    }
+
+    // Остальные методы делаем package-private
+    static void displayMenu() {
         System.out.println("\n=== User Service ===");
         System.out.println("1. Create User");
         System.out.println("2. Get User by ID");
@@ -85,19 +102,19 @@ public class Main {
         System.out.println("6. Exit");
     }
 
-    private static void createUser() {
+    static void createUser() {
         logger.debug("Starting create user operation");
 
         try {
             System.out.print("Enter name: ");
-            String name = scanner.nextLine();
+            String name = scanner.nextLine().trim();
             if (name.isEmpty()) {
                 logger.warn("Empty name provided during user creation");
                 return;
             }
 
             System.out.print("Enter email: ");
-            String email = scanner.nextLine();
+            String email = scanner.nextLine().trim();
             if (email.isEmpty()) {
                 logger.warn("Empty email provided during user creation");
                 return;
@@ -124,13 +141,18 @@ public class Main {
 
             User savedUser = userService.createUser(name, email, age);
 
-            logger.info("User created successfully with ID: {}", savedUser.getId());
+            // Check if user was successfully created
+            if (savedUser != null && savedUser.getId() != null) {
+                logger.info("User created successfully with ID: {}", savedUser.getId());
+            } else {
+                logger.error("Error: Failed to create user. User service returned null.");
+            }
         } catch (UserServiceException e) {
             logger.error("Error creating user", e);
         }
     }
 
-    private static void getUserById() {
+    static void getUserById() {
         logger.debug("Starting get user by ID operation");
 
         try {
@@ -162,7 +184,7 @@ public class Main {
         }
     }
 
-    private static void getAllUsers() {
+    static void getAllUsers() {
         logger.debug("Starting get all users operation");
 
         try {
@@ -172,11 +194,6 @@ public class Main {
                 logger.info("No users found in database");
             } else {
                 logger.debug("Found {} users in database", users.size());
-
-                System.out.println("----------------------------------------");
-                for (int i = 0; i < users.size(); i++) {
-                    System.out.println((i + 1) + ". " + users.get(i));
-                }
             }
 
         } catch (UserServiceException e) {
@@ -184,7 +201,7 @@ public class Main {
         }
     }
 
-    private static void updateUser() {
+    static void updateUser() {
         logger.debug("Starting update user operation");
 
         try {
@@ -247,6 +264,9 @@ public class Main {
                 }
             }
 
+            if(newName == null && newEmail == null && newAge == null)
+                return;
+
             User updatedUser = userService.updateUser(id, newName, newEmail, newAge);
             logger.info("User updated successfully with ID: {}", updatedUser.getId());
 
@@ -255,7 +275,7 @@ public class Main {
         }
     }
 
-    private static void deleteUser() {
+    static void deleteUser() {
         logger.debug("Starting delete user operation");
 
         try {

@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseInitializer {
@@ -28,14 +29,14 @@ public class DatabaseInitializer {
         initializeHibernate();
     }
 
-    private static void testConnection() throws Exception {
+    static void testConnection() throws Exception {
         String url = DEFAULT_URL + DB_NAME;
         try (Connection connection = DriverManager.getConnection(url, USERNAME, PASSWORD)) {
             // Check connection
         }
     }
 
-    private static void createDatabase() {
+    static void createDatabase() {
         try (Connection connection = DriverManager.getConnection(DEFAULT_URL, USERNAME, PASSWORD);
              Statement statement = connection.createStatement()) {
 
@@ -44,13 +45,21 @@ public class DatabaseInitializer {
             statement.executeUpdate(createDbSQL);
             logger.info("Database '{}' created successfully", DB_NAME);
 
+        } catch (SQLException e) {
+            // If databases already exist
+            if (e.getMessage().contains("already exists")) {
+                logger.info("Database '{}' already exists, continuing...", DB_NAME);
+                return;
+            }
+            logger.error("Failed to create database '{}'", DB_NAME, e);
+            throw new RuntimeException("Database creation failed: " + e.getMessage(), e);
         } catch (Exception e) {
-            logger.error("Failed to create database", e);
-            throw new RuntimeException("Database initialization failed", e);
+            logger.error("Failed to create database '{}'", DB_NAME, e);
+            throw new RuntimeException("Database creation failed: " + e.getMessage(), e);
         }
     }
 
-    private static void initializeHibernate() {
+    static void initializeHibernate() {
         try {
             // Get SessionFactory - Hibernate will automatically create tables
             HibernateUtil.getSessionFactory();

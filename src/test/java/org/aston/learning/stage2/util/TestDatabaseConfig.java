@@ -41,4 +41,9 @@ public class TestDatabaseConfig {
             postgreSQLContainer = null;
         }
     }
+    public static void startContainer() {
+        if (postgreSQLContainer != null && !postgreSQLContainer.isRunning()) {
+            postgreSQLContainer.start();
+        }
+    }
 }

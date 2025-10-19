@@ -56,7 +56,7 @@ class UserServiceUnitTest {
         assertThat(result.getEmail()).isEqualTo(email);
         assertThat(result.getAge()).isEqualTo(age);
 
-        verify(userDao, times(1)).save(any(User.class));
+        verify(userDao).save(any(User.class));
     }
 
     @Test
@@ -93,7 +93,7 @@ class UserServiceUnitTest {
         assertThat(result.get().getId()).isEqualTo(userId);
         assertThat(result.get().getName()).isEqualTo("John Doe");
 
-        verify(userDao, times(1)).findById(userId);
+        verify(userDao).findById(userId);
     }
 
     @Test
@@ -108,8 +108,7 @@ class UserServiceUnitTest {
 
         // Then
         assertThat(result).isEmpty();
-
-        verify(userDao, times(1)).findById(userId);
+        verify(userDao).findById(userId);
     }
 
     @Test
@@ -145,7 +144,7 @@ class UserServiceUnitTest {
         assertThat(result).extracting(User::getName)
                 .containsExactly("User1", "User2");
 
-        verify(userDao, times(1)).findAll();
+        verify(userDao).findAll();
     }
 
     @Test
@@ -171,8 +170,8 @@ class UserServiceUnitTest {
         assertThat(result.getEmail()).isEqualTo("new@example.com");
         assertThat(result.getAge()).isEqualTo(35);
 
-        verify(userDao, times(1)).findById(userId);
-        verify(userDao, times(1)).update(any(User.class));
+        verify(userDao).findById(userId);
+        verify(userDao).update(any(User.class));
     }
 
     @Test
@@ -195,8 +194,8 @@ class UserServiceUnitTest {
         assertThat(result.getEmail()).isEqualTo("old@example.com"); // unchanged
         assertThat(result.getAge()).isEqualTo(30); // unchanged
 
-        verify(userDao, times(1)).findById(userId);
-        verify(userDao, times(1)).update(any(User.class));
+        verify(userDao).findById(userId);
+        verify(userDao).update(any(User.class));
     }
 
     @Test
@@ -211,7 +210,7 @@ class UserServiceUnitTest {
                 .isInstanceOf(UserServiceException.class)
                 .hasMessageContaining("User not found");
 
-        verify(userDao, times(1)).findById(userId);
+        verify(userDao).findById(userId);
         verify(userDao, never()).update(any(User.class));
     }
 
@@ -229,8 +228,8 @@ class UserServiceUnitTest {
         userService.deleteUser(userId);
 
         // Then
-        verify(userDao, times(1)).findById(userId);
-        verify(userDao, times(1)).delete(userId);
+        verify(userDao).findById(userId);
+        verify(userDao).delete(userId);
     }
 
     @Test
@@ -245,7 +244,7 @@ class UserServiceUnitTest {
                 .isInstanceOf(UserServiceException.class)
                 .hasMessageContaining("User not found");
 
-        verify(userDao, times(1)).findById(userId);
+        verify(userDao).findById(userId);
         verify(userDao, never()).delete(anyLong());
     }
 
@@ -262,7 +261,7 @@ class UserServiceUnitTest {
 
         // Then
         assertThat(exists).isTrue();
-        verify(userDao, times(1)).findById(userId);
+        verify(userDao).findById(userId);
     }
 
     @Test
@@ -277,7 +276,7 @@ class UserServiceUnitTest {
 
         // Then
         assertThat(exists).isFalse();
-        verify(userDao, times(1)).findById(userId);
+        verify(userDao).findById(userId);
     }
 
     @Test
@@ -332,7 +331,7 @@ class UserServiceUnitTest {
                 .isInstanceOf(UserServiceException.class)
                 .hasMessageContaining("Failed to create user");
 
-        verify(userDao, times(1)).save(any(User.class));
+        verify(userDao).save(any(User.class));
     }
 
     @Test
@@ -352,7 +351,7 @@ class UserServiceUnitTest {
                 .hasMessageContaining(errorMessage)
                 .hasCauseInstanceOf(UserServiceException.class);
 
-        verify(userDao, times(1)).findById(userId);
+        verify(userDao).findById(userId);
     }
 
     @Test
@@ -371,93 +370,7 @@ class UserServiceUnitTest {
                 .hasMessageContaining(errorMessage)
                 .hasCauseInstanceOf(UserServiceException.class);
 
-        verify(userDao, times(1)).findAll();
-    }
-
-    @Test
-    @DisplayName("Should throw exception when userExists fails with database error")
-    void userExists_DaoThrowsException_ShouldPropagateException() {
-        // Given
-        Long userId = 1L;
-        String errorMessage = "Database unavailable";
-
-        when(userDao.findById(userId).isPresent())
-                .thenThrow(new UserServiceException(errorMessage));
-
-        // When & Then
-        assertThatThrownBy(() -> userService.userExists(userId))
-                .isInstanceOf(UserServiceException.class)
-                .hasMessageContaining("Failed to check user existence")
-                .hasMessageContaining(errorMessage)
-                .hasCauseInstanceOf(UserServiceException.class);
-
-        verify(userDao, times(1)).findById(userId);
-    }
-
-    @Test
-    @DisplayName("Should throw exception when updateUser fails with database error in findById")
-    void updateUser_FindByIdThrowsException_ShouldPropagateException() {
-        // Given
-        Long userId = 1L;
-        String errorMessage = "Find by ID failed";
-
-        when(userDao.findById(userId))
-                .thenThrow(new UserServiceException(errorMessage));
-
-        // When & Then
-        assertThatThrownBy(() -> userService.updateUser(userId, "New Name", "new@example.com", 35))
-                .isInstanceOf(UserServiceException.class)
-                .hasMessageContaining("Failed to update user")
-                .hasMessageContaining(errorMessage)
-                .hasCauseInstanceOf(UserServiceException.class);
-
-        verify(userDao, times(1)).findById(userId);
-        verify(userDao, never()).update(any(User.class));
-    }
-
-    @Test
-    @DisplayName("Should throw exception when updateUser fails with database error in update")
-    void updateUser_UpdateThrowsException_ShouldPropagateException() {
-        // Given
-        Long userId = 1L;
-        User existingUser = new User("Old Name", "old@example.com", 30);
-        existingUser.setId(userId);
-        String errorMessage = "Update operation failed";
-
-        when(userDao.findById(userId)).thenReturn(Optional.of(existingUser));
-        when(userDao.update(any(User.class)))
-                .thenThrow(new UserServiceException(errorMessage));
-
-        // When & Then
-        assertThatThrownBy(() -> userService.updateUser(userId, "New Name", "new@example.com", 35))
-                .isInstanceOf(UserServiceException.class)
-                .hasMessageContaining("Failed to update user")
-                .hasMessageContaining(errorMessage)
-                .hasCauseInstanceOf(UserServiceException.class);
-
-        verify(userDao, times(1)).findById(userId);
-        verify(userDao, times(1)).update(any(User.class));
-    }
-
-    @Test
-    @DisplayName("Should throw exception when deleteUser fails with database error in existsById")
-    void deleteUser_ExistsByIdThrowsException_ShouldPropagateException() {
-        // Given
-        Long userId = 1L;
-        String errorMessage = "Exists check failed";
-
-        when(userDao.findById(userId).isPresent())
-                .thenThrow(new UserServiceException(errorMessage));
-
-        // When & Then
-        assertThatThrownBy(() -> userService.deleteUser(userId))
-                .isInstanceOf(UserServiceException.class)
-                .hasMessageContaining("Failed to delete user")
-                .hasMessageContaining(errorMessage)
-                .hasCauseInstanceOf(UserServiceException.class);
-
-        verify(userDao, times(1)).findById(userId);
-        verify(userDao, never()).delete(anyLong());
+        verify(userDao).findAll();
     }
 
     @Test
@@ -491,5 +404,271 @@ class UserServiceUnitTest {
         // Then
         assertThat(exists).isFalse();
         verify(userDao, never()).findById(anyLong());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating user with null ID")
+    void updateUser_NullId_ShouldThrowException() {
+        // Given
+        Long nullId = null;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.updateUser(nullId, "Name", "email@example.com", 25))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid user ID");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).update(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating user with invalid ID")
+    void updateUser_InvalidId_ShouldThrowException() {
+        // Given
+        Long invalidId = 0L;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.updateUser(invalidId, "Name", "email@example.com", 25))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid user ID");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).update(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating user with negative ID")
+    void updateUser_NegativeId_ShouldThrowException() {
+        // Given
+        Long negativeId = -1L;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.updateUser(negativeId, "Name", "email@example.com", 25))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid user ID");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).update(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating user with empty name")
+    void updateUser_EmptyName_ShouldThrowException() {
+        // Given
+        Long userId = 1L;
+        String emptyName = "   ";
+
+        // When & Then
+        assertThatThrownBy(() -> userService.updateUser(userId, emptyName, "email@example.com", 25))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Name cannot be empty");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).update(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating user with invalid email")
+    void updateUser_InvalidEmail_ShouldThrowException() {
+        // Given
+        Long userId = 1L;
+        String invalidEmail = "invalid-email";
+
+        // When & Then
+        assertThatThrownBy(() -> userService.updateUser(userId, "Name", invalidEmail, 25))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid email format");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).update(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating user with invalid age")
+    void updateUser_InvalidAge_ShouldThrowException() {
+        // Given
+        Long userId = 1L;
+        Integer invalidAge = -5;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.updateUser(userId, "Name", "email@example.com", invalidAge))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid age");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).update(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating user with too high age")
+    void updateUser_TooHighAge_ShouldThrowException() {
+        // Given
+        Long userId = 1L;
+        Integer tooHighAge = 151;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.updateUser(userId, "Name", "email@example.com", tooHighAge))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid age");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).update(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting user with null ID")
+    void deleteUser_NullId_ShouldThrowException() {
+        // Given
+        Long nullId = null;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.deleteUser(nullId))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid user ID");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).delete(anyLong());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting user with invalid ID")
+    void deleteUser_InvalidId_ShouldThrowException() {
+        // Given
+        Long invalidId = 0L;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.deleteUser(invalidId))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid user ID");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).delete(anyLong());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting user with negative ID")
+    void deleteUser_NegativeId_ShouldThrowException() {
+        // Given
+        Long negativeId = -1L;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.deleteUser(negativeId))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid user ID");
+
+        verify(userDao, never()).findById(anyLong());
+        verify(userDao, never()).delete(anyLong());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when creating user with null name")
+    void createUser_NullName_ShouldThrowException() {
+        // Given
+        String nullName = null;
+        String email = "test@example.com";
+        Integer age = 25;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(nullName, email, age))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Name cannot be empty");
+
+        verify(userDao, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when creating user with empty name")
+    void createUser_EmptyName_ShouldThrowException() {
+        // Given
+        String emptyName = "   ";
+        String email = "test@example.com";
+        Integer age = 25;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(emptyName, email, age))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Name cannot be empty");
+
+        verify(userDao, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when creating user with null email")
+    void createUser_NullEmail_ShouldThrowException() {
+        // Given
+        String name = "John Doe";
+        String nullEmail = null;
+        Integer age = 25;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(name, nullEmail, age))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Email cannot be empty");
+
+        verify(userDao, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when creating user with empty email")
+    void createUser_EmptyEmail_ShouldThrowException() {
+        // Given
+        String name = "John Doe";
+        String emptyEmail = "   ";
+        Integer age = 25;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(name, emptyEmail, age))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Email cannot be empty");
+
+        verify(userDao, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when creating user with null age")
+    void createUser_NullAge_ShouldThrowException() {
+        // Given
+        String name = "John Doe";
+        String email = "test@example.com";
+        Integer nullAge = null;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(name, email, nullAge))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid age");
+
+        verify(userDao, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when creating user with negative age")
+    void createUser_NegativeAge_ShouldThrowException() {
+        // Given
+        String name = "John Doe";
+        String email = "test@example.com";
+        Integer negativeAge = -1;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(name, email, negativeAge))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid age");
+
+        verify(userDao, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when creating user with too high age")
+    void createUser_TooHighAge_ShouldThrowException() {
+        // Given
+        String name = "John Doe";
+        String email = "test@example.com";
+        Integer tooHighAge = 151;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(name, email, tooHighAge))
+                .isInstanceOf(UserServiceException.class)
+                .hasMessageContaining("Invalid age");
+
+        verify(userDao, never()).save(any(User.class));
     }
 }

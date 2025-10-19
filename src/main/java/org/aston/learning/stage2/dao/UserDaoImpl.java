@@ -39,6 +39,11 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<User> findById(Long id) throws UserServiceException {
+        if (id == null) {
+            logger.debug("Attempt to find user with null ID, returning empty");
+            return Optional.empty();
+        }
+
         try (Session session = sessionFactory.openSession()) {
             User user = session.find(User.class, id);
             return Optional.ofNullable(user);
